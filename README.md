@@ -1,192 +1,206 @@
-# **KeyPlus**
+<!-- ========================================================= -->
+<!-- Standards Approval Badge (not up to standards yet) -->
+<!-- ========================================================= -->
+<!--
+<table align="right">
+  <tr>
+    <td>
+      <img src="https://raw.githubusercontent.com/ZFordDev/ZFordDev/main/assets/standards-approved.svg" width="80" alt="ZFordDev Standards Approved Badge">
+    </td>
+  </tr>
+</table> 
+-->
 
-A completely offline, local‑first password manager.  
-Because putting all your keys in someone else’s cloud is a bad idea — so I’m building my own.
+<!-- ========================================================= -->
+
+<!-- Required Badges -->
+
+<!-- ========================================================= -->
 
 
+[![Docs](https://img.shields.io/badge/DocsHub-docs.zford.dev-4F46E5?style=flat-square)](https://docs.zford.dev/zforddev/keyplus/)
+![Status](https://img.shields.io/badge/Status-ACTIVE-4CAF50?style=flat-square)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
+![Windows](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white) 
+<!-- ========================================================= -->
 
+<!-- Optional Badges (Uncomment if applicable) -->
 
+<!-- ========================================================= -->
+<!--[![itch.io](https://img.shields.io/badge/itch.io-KeyPlus-FA5C5C?style=flat-square)](https://zforddev.itch.io/keyplus)-->
+<!--[Downloads](https://img.shields.io/github/downloads/ZFordDev/keyplus/total?style=flat-square)-->
+![Python](https://img.shields.io/badge/App_Built_with-Python-blue?style=flat-square) 
+![Rust](https://img.shields.io/badge/Core_Built_with-Rust-orange?style=flat-square)
+
+# KeyPlus  
+*A completely offline, local-first password manager.*
+
+> **Status:**  
+> Pre‑Alpha • Actively Developed • Accepting Contributions soon
+
+---
+
+## Why KeyPlus Exists
+
+My password storage leaked.
+
+My offline manager went paid.
+
+I needed something I could trust.
+
+So I built KeyPlus — a local‑only password vault that stays on your machine, stays simple, and stays yours.
 
 ---
 
 ## Overview
 
-KeyPlus is a lightweight, security‑focused password manager designed around a simple idea:
+KeyPlus is a simple, local‑only password vault built around one idea:
 
-> **Your passwords belong to you — not a cloud provider, not a sync service, not a server.**
+Add passwords quickly. View passwords quickly. Trust the tool because it never leaves your machine.
 
-KeyPlus stores all credentials **locally**, **encrypted**, and **only unlocked when you’re present**.  
-No telemetry. No network calls. No hidden sync. No surprises.
+The design is intentionally straightforward:
 
----
+- Use the CLI when you want speed
+- Use the GUI when you want comfort
+- Keep the vault format predictable and transparent
+- Keep everything offline, always
 
-## Core Pillars
-
-- **100% Offline**  
-  Everything stays on your machine. No cloud, no remote APIs, no metadata leaks.
-
-- **Local‑First Security**  
-  A single master password derives the encryption key.  
-  Vault is unreadable at rest.
-
-- **Minimalist by Design**  
-  No bloat, no plugins, no “pro” features. Just secure credential storage.
-
-- **SchedPlus‑Style Logic Core**  
-  Clean modules, predictable flow, CLI + optional GUI — without the 10‑headed hydra.
-
-- **Optional Biometric Unlock**  
-  Windows Hello or Ubuntu’s Secret Service can unlock the vault without typing the master password.
+KeyPlus isn’t trying to be an ecosystem or a platform.
+It’s a tool: fast to open, fast to use, and built to stay yours.
 
 ---
 
-## Architecture
+## Features (Current & Planned)
+
+### Current
+- Local‑first vault storage  
+- Rust‑backed read/write operations  
+- JSON‑based vault format  
+- Simple CLI interface  
+- Cross‑platform support (Linux, Windows, macOS soon)
+
+### In Development
+- Encrypted vault format 
+- Entry creation, editing, and deletion  
+- Search and filtering  
+- Import/export tools  
+- UI launcher (Python + TUI or lightweight GUI)  
+- Vault versioning and migration system  
+
+---
+
+## Requirements
+
+KeyPlus runs on any system with:
+
+**Python**
+- Python 3.10+  
+- Pip + venv recommended  
+
+**Rust**
+- Rust toolchain (stable)  
+- Required only for development builds  
+
+**Supported Platforms**
+- Linux  
+- Windows  
+- macOS (maybe)
+
+---
+
+## Quick Start (From Source)
+
+```bash
+git clone https://github.com/ZFordDev/keyplus.git
+cd keyplus
+
+# Create a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install KeyPlus (Rust backend will compile)
+pip install .
+```
+
+Run the CLI:
+
+```bash
+keyplus
+```
+
+---
+
+## Installation
+
+### Linux / Windows (Source Install)
+```bash
+pip install keyplus
+```
+
+Binary releases will be available once the encryption layer stabilises.
+
+---
+
+## Project Structure
 
 ```
 keyplus/
+├── app/                    # Python UI + CLI
+│   ├── keyplus.py          # Entry point
+│   ├── storage.py          # Python ↔ Rust bridge
+│   └── cli/                # CLI commands
 │
-├── main.py
-├── core/
-│   ├── crypto.py      # key derivation, AES‑GCM encryption/decryption
-│   ├── vault.py       # load/save encrypted vault blob
-│   ├── manager.py     # add/get/list/search credentials
-│   └── session.py     # session timeout + unlock logic
+├── core/                   # Rust backend
+│   ├── src/lib.rs          # PyO3 module
+│   └── Cargo.toml
 │
-├── platform/
-│   ├── windows.py     # Windows Hello / DPAPI integration
-│   └── linux.py       # libsecret / keyring integration
-│
-├── ui/
-│   ├── cli.py         # command‑line interface
-│   └── gui.py         # optional GUI (future)
-│
-└── data/
-    └── vault.kp       # encrypted vault file
-```
-
-
-
-
-
----
-
-## Security Model
-
-### **Master Password**  
-The master password is the *true* cryptographic root.  
-It is never stored, never cached, and never written to disk.
-
-### **Key Derivation**  
-KeyPlus uses PBKDF2 or scrypt to derive a 256‑bit AES key from the master password.
-
-### **Encrypted Vault**  
-All credentials are stored as a single encrypted blob using AES‑256‑GCM.  
-At rest, the vault is unreadable noise.
-
-### **Session Timeout**  
-If more than 60 seconds pass since the last unlock, the in‑memory key is wiped.  
-Next access requires re‑authentication.
-
-### **Biometric Unlock (Optional)**  
-If enabled, the derived AES key is encrypted using:
-- **Windows Hello + DPAPI** on Windows  
-- **libsecret / GNOME Keyring** on Ubuntu  
-
-Biometric unlock decrypts the AES key without typing the master password.
-
----
-
-## Features
-
-- **Add credentials**  
-- **List entries**  
-- **Search by name**  
-- **Masked password display**  
-- **Reveal password on demand**  
-- **Session auto‑lock**  
-- **Biometric unlock**  
-- **Portable encrypted vault file**  
-
----
-
-## Usage (CLI)
-
-```
-# Initialize a new vault
-keyplus init
-
-# Add a credential
-keyplus add github zach@example.com
-
-# List entries
-keyplus list
-
-# Reveal a password
-keyplus show github
+├── README.md
+├── pyproject.toml          # Maturin + Python packaging
+└── temp_notes.md           # Internal notes
 ```
 
 ---
 
-## GUI (Optional / Future)
+## Roadmap
 
-A minimal GUI will be available later, built on the same logic core.  
-The UI is intentionally simple — think “KeePass Mini,” not “Electron monster.”
-
----
-
-## File Format
-
-The vault file (`vault.kp`) contains:
-
-```
-{
-  "version": 1,
-  "salt": "...",
-  "nonce": "...",
-  "ciphertext": "..."
-}
-```
-
-Everything inside `ciphertext` is encrypted JSON.
+KeyPlus will get a roadmap soon
 
 ---
 
-## Threat Model
+## Known Issues
 
-KeyPlus protects against:
+KeyPlus is in early development.  
+Most features are still being built — check back as the vault, CLI, and encryption layer evolve.
 
-- casual snooping  
-- stolen laptop without login  
-- reading the vault file directly  
-- offline brute‑force attempts  
-- reverse‑engineering the vault format  
+---
 
-KeyPlus does **not** protect against:
+## Contributing
 
-- active malware  
-- compromised OS  
-- memory scraping  
-- hardware keyloggers  
+Contributions, bug reports, and feature requests are welcome.
 
-This is a **practical** password manager — not a fantasy one.
+See:
+
+<!-- - `CONTRIBUTING.md` for project‑specific guidelines -->
+- [STANDARDS.md](https://github.com/ZFordDev/ZFordDev/blob/main/STANDARDS.md) for ecosystem‑wide expectations  
+
+---
+
+## Security
+
+KeyPlus is local‑first and security‑focused.  
+A full security policy will be published once the encryption layer is complete.
 
 ---
 
 ## License
 
-MIT — because security tools should be open, inspectable, and forkable.
+Released under the MIT License.  
+See `LICENSE` for details.
 
 ---
 
-## Philosophy
+## About ZFordDev
 
-KeyPlus exists because:
-
-- local‑first tools matter  
-- cloud sync is a liability  
-- simple security is better than complex insecurity  
-- you should own your secrets  
-
-If you want a password manager that respects your machine, your workflow, and your privacy — KeyPlus is it.
+KeyPlus is part of the ZFordDev ecosystem — a collection of practical, long‑term tools built with clarity, simplicity, and maintainability in mind.
 
 ---

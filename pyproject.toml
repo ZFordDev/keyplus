@@ -1,0 +1,56 @@
+[build-system]
+requires = ["maturin>=1.5"]
+build-backend = "maturin"
+
+
+[project]
+name = "keyplus"
+version = "0.0.1"
+description = "UI logic for the password vault"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+
+authors = [
+  { name = "ZFordDev", email = "zforddev@gmail.com" }
+]
+
+maintainers = [
+  { name = "ZFordDev", email = "zforddev@gmail.com" }
+]
+
+keywords = ["password", "offline", "CLI", "UI", "rust"]
+
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Rust",
+  "Operating System :: OS Independent"
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+gui = []
+cli = []
+
+[project.urls]
+Homepage = "https://github.com/ZFordDev/keyplus"
+Documentation = "https://docs.zford.dev/zforddev/keyplus"
+Repository = "https://github.com/ZFordDev/keyplus.git"
+"Bug Tracker" = "https://github.com/ZFordDev/keyplus/issues"
+Changelog = "https://github.com/ZFordDev/keyplus/blob/main/CHANGELOG.md"
+
+[project.scripts]
+keyplus = "app.keyplus:main"
+
+[tool.setuptools]
+package-dir = {"" = "app"}
+
+[tool.setuptools.packages.find]
+where = ["app"]
+
+[tool.maturin]
+manifest-path = "core/Cargo.toml"
+module-name = "keyplus_core"
+python-packages = ["app"]
