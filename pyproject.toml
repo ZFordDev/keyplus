@@ -5,7 +5,7 @@ build-backend = "maturin"
 
 [project]
 name = "keyplus"
-version = "0.0.1"
+version = "0.0.2"
 description = "UI logic for the password vault"
 readme = "README.md"
 license = "MIT"
