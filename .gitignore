@@ -1,5 +1,5 @@
 # ────────────────────────────────────────────────
-#  Python
+#  Python & Packaging
 # ────────────────────────────────────────────────
 __pycache__/
 *.pyc
@@ -13,30 +13,38 @@ __pycache__/
 env/
 venv/
 
-# ────────────────────────────────────────────────
-#  Rust / Maturin
-# ────────────────────────────────────────────────
-target/
-Cargo.lock
-
-# PyO3 / maturin build artifacts
-*.so
+# Build artifacts
 build/
 dist/
 
 # ────────────────────────────────────────────────
-#  KeyPlus Vault Files
+#  Rust / Maturin (If writing extensions later)
 # ────────────────────────────────────────────────
-# Prevent accidental commits of real vaults
-*.json
+target/
+Cargo.lock
+*.so
+
+# ────────────────────────────────────────────────
+#  KeyPlus Vault Files (Tightened)
+# ────────────────────────────────────────────────
+# Prevent committing real developer/test vaults
 *.kp
 *.db
+*.db-wal
+*.db-shm
+
+# Target local test files specifically, NOT all JSON project configs
+data/
+vault.json
+auth.json
 
 # ────────────────────────────────────────────────
 #  Editor / OS Junk
 # ────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
 
 # ────────────────────────────────────────────────
 #  Project‑wide temp notes

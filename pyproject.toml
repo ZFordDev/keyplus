@@ -1,14 +1,13 @@
 [build-system]
-requires = ["maturin>=1.5"]
-build-backend = "maturin"
-
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "keyplus"
-version = "0.0.2"
-description = "UI logic for the password vault"
+version = "0.1.2"
+description = "Local-first password vault with CLI and optional GUI"
 readme = "README.md"
-license = "MIT"
+license = { text = "MIT" } # Modern PEP 621 license format standard
 requires-python = ">=3.10"
 
 authors = [
@@ -19,20 +18,30 @@ maintainers = [
   { name = "ZFordDev", email = "zforddev@gmail.com" }
 ]
 
-keywords = ["password", "offline", "CLI", "UI", "rust"]
+keywords = ["password", "offline", "CLI", "UI", "vault", "security"]
 
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Rust",
-  "Operating System :: OS Independent"
+  "Operating System :: OS Independent",
+  "Topic :: Security :: Cryptography"
 ]
 
-dependencies = []
+dependencies = [
+  "cryptography>=42.0.0",
+  "rich>=13.0.0",
+  "argon2-cffi>=23.1.0" 
+]
 
 [project.optional-dependencies]
-gui = []
-cli = []
+gui = [
+  "flet>=0.7.0"
+]
+dev = [
+  "pytest",
+  "black",
+  "ruff"
+]
 
 [project.urls]
 Homepage = "https://github.com/ZFordDev/keyplus"
@@ -42,15 +51,11 @@ Repository = "https://github.com/ZFordDev/keyplus.git"
 Changelog = "https://github.com/ZFordDev/keyplus/blob/main/CHANGELOG.md"
 
 [project.scripts]
-keyplus = "app.keyplus:main"
+keyplus = "keyplus.__main__:main"
 
 [tool.setuptools]
-package-dir = {"" = "app"}
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
-where = ["app"]
-
-[tool.maturin]
-manifest-path = "core/Cargo.toml"
-module-name = "keyplus_core"
-python-packages = ["app"]
+where = ["src"]
+include = ["keyplus*"]
