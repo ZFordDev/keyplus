@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keyplus"
-version = "0.1.2"
+version = "0.2.8"
 description = "Local-first password vault with CLI and optional GUI"
 readme = "README.md"
-license = { text = "MIT" } # Modern PEP 621 license format standard
+license = { text = "MIT" }
 requires-python = ">=3.10"
 
 authors = [
@@ -30,12 +30,13 @@ classifiers = [
 dependencies = [
   "cryptography>=42.0.0",
   "rich>=13.0.0",
+  "prompt-toolkit>=3.0.0",
   "argon2-cffi>=23.1.0" 
 ]
 
 [project.optional-dependencies]
 gui = [
-  "flet>=0.7.0"
+  "pyside6"
 ]
 dev = [
   "pytest",
