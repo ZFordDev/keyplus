@@ -1,112 +1,66 @@
 # src/logic/vault.py
 
 import json
-import uuid
-from datetime import datetime
-from .storage.storage import load_vault_raw, save_vault_raw
+from pathlib import Path
 from .crypto import encrypt, decrypt
 from .session import ensure_session_key
-from .history import add_history
 
-def _now():
-    # Keep it clean with standard UTC
-    return datetime.utcnow().isoformat()
+# Get user home directory
+HOME = Path.home()
 
+VAULT_DIR = HOME / ".local" / "share" / "ZFordDev" / "keyplus"
+VAULT_FILE = Path("vault.json")
 
-# ---------------------------------------------------------
-# Load vault
-# ---------------------------------------------------------
-
-def load_vault() -> dict:
-    key = ensure_session_key()
-    raw = load_vault_raw()
-    
-    # If it's a freshly initialized empty vault structure, skip decryption
-    if not raw.get("entries") and "ciphertext" not in raw:
-        return {"entries": []}
+def load_vault() -> list:
+    """Loads and decrypts the vault entries."""
+    if not VAULT_FILE.exists():
+        return []
         
-    ciphertext = raw.get("ciphertext")
+    key = ensure_session_key()
+    
+    with open(VAULT_FILE, "r") as f:
+        ciphertext = f.read()
+        
     if not ciphertext:
-        return {"entries": []}
-
-    # Decrypt the payload back into its original JSON string
+        return []
+        
     plaintext_json = decrypt(ciphertext, key)
     return json.loads(plaintext_json)
 
-
-# ---------------------------------------------------------
-# Save vault
-# ---------------------------------------------------------
-
-def save_vault(vault: dict):
+def save_vault(entries: list):
+    """Encrypts and saves the vault entries."""
     key = ensure_session_key()
-    
-    # Turn the raw runtime dictionary into a flat string
-    plaintext_json = json.dumps(vault)
-    
-    # Encrypt the entire string block
+    plaintext_json = json.dumps(entries)
     ciphertext = encrypt(plaintext_json, key)
     
-    # Pack it securely into the storage engine
-    encrypted_vault = {"ciphertext": ciphertext}
-    save_vault_raw(encrypted_vault)
+    with open(VAULT_FILE, "w") as f:
+        f.write(ciphertext)
 
-# ---------------------------------------------------------
-# CRUD operations
-# ---------------------------------------------------------
+def list_entries() -> list:
+    return load_vault()
 
-def list_entries():
-    vault = load_vault()
-    return vault["entries"]
-
-
-def get_entry(identifier: str):
-    vault = load_vault()
-    for e in vault["entries"]:
-        if e["id"] == identifier or e["name"] == identifier:
-            return e
-    return None
-
-
-def add_entry(name: str, domain: str, password: str):
-    vault = load_vault()
-
+def add_entry(name: str, domain: str, password: str) -> dict:
+    entries = load_vault()
+    
+    import uuid
+    import datetime
+    
     entry = {
         "id": str(uuid.uuid4()),
         "name": name,
         "domain": domain,
         "password": password,
-        "created": _now(),
-        "updated": _now(),
+        "created": datetime.datetime.now().isoformat(),
+        "updated": datetime.datetime.now().isoformat()
     }
-
-    vault["entries"].append(entry)
-    save_vault(vault)
+    
+    entries.append(entry)
+    save_vault(entries)
     return entry
 
-
-def edit_entry(identifier: str, **updates):
-    # Use proper crypto-aware wrapper instead of load_vault_raw
-    vault = load_vault()
-
-    for entry in vault.get("entries", []):
-        if entry["id"] == identifier or entry["name"] == identifier:
-
-            old_password = entry["password"]
-
-            # Apply updates
-            for k, v in updates.items():
-                if v is not None:
-                    entry[k] = v
-
-            entry["updated"] = _now()
-
-            # Record history ONLY if password changed
-            if "password" in updates and updates["password"] != old_password:
-                add_history(identifier, old_password)
-
-            # Use your proper crypto-aware wrapper instead of save_vault_raw
-            save_vault(vault)
-            return entry
-
+def get_entry(entry_id: str) -> dict:
+    entries = load_vault()
+    for e in entries:
+        if e["id"] == entry_id:
+            return e
     return None

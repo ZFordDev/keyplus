@@ -11,7 +11,14 @@ SESSION_TTL = 60  # seconds for now, make it a config later
 
 def set_session_key(password: str):
     global _session_key, _session_expiry
-    _session_key = secrets.token_hex(32)  # random session token
+    if password is None:
+        _session_key = None
+        _session_expiry = 0
+        return
+        
+    # Store the actual password string (or its hash) so crypto.py 
+    # can derive the exact same Fernet key every session.
+    _session_key = password 
     _session_expiry = time.time() + SESSION_TTL
 
 
