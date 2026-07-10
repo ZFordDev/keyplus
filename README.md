@@ -24,8 +24,8 @@
 # KeyPlus  
 *A completely offline, local‑first password manager.*
 
-> **Version:** v0.1.2  
-> **Status:** Alpha • Actively Developed • Accepting Contributions Soon
+> **Version:** v0.2.8 
+> **Status:** Beta • Actively Developed • Accepting Contributions
 
 ---
 
@@ -120,21 +120,10 @@ keyplus
 keyplus/
 ├── src/
 │   └── keyplus/            # Core package namespace root
-│       ├── __init__.py
-│       ├── __main__.py     # Execution entry point
 │       ├── cli/            # CLI Command Interface & REPL loop
-│       │   ├── __init__.py
-│       │   └── cli_main.py
+│       ├── ui/             # Pyside6 Ui
 │       └── logic/          # Core cryptography & database operations
-│           ├── __init__.py
-│           ├── auth.py     # Argon2 security setup
-│           ├── crypto.py   # Fernet layer transformations
-│           ├── history.py  # Historical version buffers
-│           ├── session.py  # Runtime activity management
-│           ├── vault.py    # Main CRUD abstraction wrappers
-│           └── storage/
-│               ├── __init__.py
-│               └── storage.py # SQLite connections and WAL handling
+│           └── storage/    # SQLite connections
 ├── LICENSE
 ├── README.md
 ├── pyproject.toml          # Modern PEP 621 packaging definitions
@@ -148,9 +137,13 @@ keyplus/
 
 ## Roadmap
 
-* Native Desktop GUI Context Launcher
-* Automated Backup Rotations
-* Secure Sandbox Packaging (Snap Craft)
+* Packaging
+  * linux
+    * deb ✔️
+    * snap ⏳
+  * Windows
+  * mac 🛠️
+  * android? 🤔
 
 ---
 
