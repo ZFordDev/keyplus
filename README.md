@@ -9,7 +9,7 @@
 # KeyPlus  
 *A completely offline, local‑first password manager.*
 
-> **Version:** v0.2.8  
+> **Version:** v0.2.9  
 > **Status:** Beta • Actively Developed • Accepting Contributions
 
 ## Why KeyPlus Exists

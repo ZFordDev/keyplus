@@ -71,7 +71,7 @@ jobs:
         uses: snapcore/action-build@v1
         id: snapcraft
         with:
-          command: pack
+          snapcraft-args: pack
 
       - name: Determine Track and Release Status
         id: check_type
