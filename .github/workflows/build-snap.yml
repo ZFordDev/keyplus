@@ -63,13 +63,15 @@ jobs:
                 - build-essential
                 - python3-dev
               stage-packages:
-                - libgl1-mesa-glx
+                - libgl1
           EOF
           echo "snapcraft.yaml generated successfully."
 
       - name: Build Snap Package
         uses: snapcore/action-build@v1
         id: snapcraft
+        with:
+          command: pack
 
       - name: Determine Track and Release Status
         id: check_type
