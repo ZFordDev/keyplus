@@ -50,8 +50,8 @@ jobs:
       - name: Stage Payload inside Windows Setup Directory
         shell: powershell
         run: |
-          mkdir setup/windows/dist_payload
-          xcopy /E /I dist/keyplus setup/windows/dist_payload
+          New-Item -ItemType Directory -Force -Path setup/windows/dist_payload | Out-Null
+          Copy-Item -Recurse -Force dist/keyplus/* setup/windows/dist_payload/
 
       - name: Generate checksums.json for payload
         shell: powershell
