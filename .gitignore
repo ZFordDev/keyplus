@@ -7,6 +7,7 @@ __pycache__/
 *.pyd
 *.egg-info/
 *.egg
+dist_payload
 
 # Virtual environments
 .venv/
