@@ -5,6 +5,7 @@ on:
     tags:
       - 'release-*'
       - 'pre-release-*'
+  workflow_dispatch:
 
 jobs:
   package-windows:
