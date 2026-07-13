@@ -1,0 +1,104 @@
+name: Build Windows Installer Package
+
+on:
+  push:
+    tags:
+      - 'release-*'
+      - 'pre-release-*'
+
+jobs:
+  package-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Extract absolute version
+        id: get_version
+        shell: powershell
+        run: |
+          $version = ""
+          foreach ($line in Get-Content pyproject.toml) {
+              if ($line.Trim().StartsWith("version =")) {
+                  $version = $line.Split("=")[1].Trim().Trim("'").Trim('"')
+                  break
+              }
+          }
+          echo "VERSION=$version" >> $env:GITHUB_ENV
+          Write-Host "Extracted version for Windows: $version"
+
+      - name: Install Build Tools & Dependencies
+        shell: powershell
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pywin32
+          pip install .
+
+      - name: Compile Core KeyPlus App Payload
+        shell: powershell
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name keyplus --paths=src --collect-all PySide6 src/keyplus/__main__.py
+
+      - name: Stage Payload inside Windows Setup Directory
+        shell: powershell
+        run: |
+          mkdir setup/windows/dist_payload
+          xcopy /E /I dist/keyplus setup/windows/dist_payload
+
+      - name: Generate checksums.json for payload
+        shell: powershell
+        run: |
+          python - << 'PY'
+          import hashlib, json
+          from pathlib import Path
+
+          payload = Path('setup/windows/dist_payload')
+          payload.mkdir(parents=True, exist_ok=True)
+          checksums = {}
+          for p in payload.rglob('*'):
+              if p.is_file():
+                  rel = p.relative_to(payload).as_posix()
+                  h = hashlib.sha256()
+                  with open(p, 'rb') as f:
+                      for chunk in iter(lambda: f.read(8192), b''):
+                          h.update(chunk)
+                  checksums[rel] = h.hexdigest()
+          with open(payload / 'checksums.json', 'w', encoding='utf-8') as f:
+              json.dump(checksums, f)
+          print('Wrote', payload / 'checksums.json')
+          PY
+
+      - name: Compile Standalone Installer Executable
+        shell: powershell
+        run: |
+          pyinstaller --noconfirm --onefile --windowed --name KeyPlus-Setup-${{ env.VERSION }} --paths=setup/windows --add-data "setup/windows/dist_payload;dist_payload" setup/windows/installer.py
+
+      - name: Sign Installer Binary (Optional Placeholder for Dev Key)
+        shell: powershell
+        run: |
+          Write-Host "Ready to sign: dist\KeyPlus-Setup-${{ env.VERSION }}.exe"
+
+      - name: Determine Release Status
+        id: check_type
+        shell: powershell
+        run: |
+          if ("${{ github.ref_name }}".StartsWith("pre-release-")) {
+            echo "IS_PRERELEASE=true" >> $env:GITHUB_ENV
+          } else {
+            echo "IS_PRERELEASE=false" >> $env:GITHUB_ENV
+          }
+
+      - name: Upload Installer Package to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/KeyPlus-Setup-${{ env.VERSION }}.exe
+          prerelease: ${{ env.IS_PRERELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

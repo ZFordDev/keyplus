@@ -32,7 +32,8 @@ dependencies = [
   "rich>=13.0.0",
   "prompt-toolkit>=3.0.0",
   "argon2-cffi>=23.1.0",
-  "pyside6"
+  "pyside6",
+  "pywin32; sys_platform == 'win32'"
 ]
 
 [project.optional-dependencies]
