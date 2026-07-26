@@ -4,6 +4,7 @@
 ![Windows](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white)  
 ![Downloads](https://img.shields.io/github/downloads/ZFordDev/keyplus/total?style=flat-square)
 ![Python](https://img.shields.io/badge/Built_with-Python-blue?style=flat-square)
+[![keyplus](https://snapcraft.io/keyplus/badge.svg)](https://snapcraft.io/keyplus)
 
 
 # KeyPlus  
@@ -94,6 +95,8 @@ keyplus/
       * Custom installer⏳
   * mac 🛠️
   * android? 🤔
+ 
+  [![Get it from the Snap Store](https://snapcraft.io/en/dark/install.svg)](https://snapcraft.io/keyplus)
 
 ## Expectations
 
