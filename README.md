@@ -88,9 +88,9 @@ keyplus/
 * Packaging
   * linux
     * deb ✔️
-    * snap ⏳
-  * Windows ⏳
-    * .exe ⏳
+    * snap ✔️
+  * Windows
+    * .exe ✔️
       * Custom installer⏳
   * mac 🛠️
   * android? 🤔
