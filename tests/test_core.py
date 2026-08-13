@@ -87,15 +87,45 @@ def test_session_expiry_invalidates_state(tmp_path):
 
 
 def test_change_password_is_atomic_from_user_view(tmp_path):
-    service, _ = make_service(tmp_path)
+    service, paths = make_service(tmp_path)
     service.initialize("old")
     service.add_entry(EntryDraft("Site", "site.test", "password"))
     service.change_master_password("old", "new")
+    previous = paths.backup_dir / "last-good.vault"
+    assert previous.exists()
     service.lock()
     with pytest.raises(UnlockFailedError):
         service.unlock("old")
     service.unlock("new")
     assert service.list_entries()[0].name == "Site"
+
+    service.restore_backup(previous, "old")
+    service.lock()
+    service.unlock("old")
+    assert service.list_entries()[0].name == "Site"
+
+
+def test_wrong_current_password_preserves_vault_and_session(tmp_path):
+    service, paths = make_service(tmp_path)
+    service.initialize("old")
+    before = paths.vault_file.read_bytes()
+
+    with pytest.raises(UnlockFailedError):
+        service.change_master_password("wrong", "new")
+
+    assert paths.vault_file.read_bytes() == before
+    assert service.unlocked
+    service.lock()
+    service.unlock("old")
+
+
+def test_password_change_requires_unlocked_session(tmp_path):
+    service, _ = make_service(tmp_path)
+    service.initialize("old")
+    service.lock()
+
+    with pytest.raises(VaultLockedError):
+        service.change_master_password("old", "new")
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission assertion")
@@ -190,3 +220,75 @@ def test_failed_restore_preserves_active_vault(tmp_path):
 
     assert paths.vault_file.read_bytes() == before
     assert service.list_entries()[0].name == "Current"
+
+
+def test_wrong_backup_password_preserves_active_vault(tmp_path):
+    service, paths = make_service(tmp_path)
+    service.initialize("correct")
+    backup = service.create_backup()
+    before = paths.vault_file.read_bytes()
+
+    with pytest.raises(RestoreError):
+        service.restore_backup(backup, "wrong")
+
+    assert paths.vault_file.read_bytes() == before
+    assert service.unlocked
+
+
+def test_unsupported_backup_version_preserves_active_vault(tmp_path):
+    service, paths = make_service(tmp_path)
+    service.initialize("correct")
+    backup = service.create_backup()
+    value = json.loads(backup.read_text())
+    value["version"] = 99
+    backup.write_text(json.dumps(value))
+    before = paths.vault_file.read_bytes()
+
+    with pytest.raises(RestoreError):
+        service.restore_backup(backup, "correct")
+
+    assert paths.vault_file.read_bytes() == before
+
+
+def test_restore_write_failure_preserves_active_vault(tmp_path, monkeypatch):
+    service, paths = make_service(tmp_path)
+    service.initialize("correct")
+    backup = service.create_backup()
+    service.add_entry(EntryDraft("Current", "current.test", "secret"))
+    before = paths.vault_file.read_bytes()
+    real_replace = os.replace
+
+    def fail_active_replace(source, destination):
+        if destination == paths.vault_file:
+            raise OSError("simulated restore failure")
+        return real_replace(source, destination)
+
+    monkeypatch.setattr("keyplus.storage.repository.os.replace", fail_active_replace)
+    with pytest.raises(RestoreError):
+        service.restore_backup(backup, "correct")
+
+    assert paths.vault_file.read_bytes() == before
+    assert service.list_entries()[0].name == "Current"
+
+
+def test_backup_names_do_not_collide_and_inventory_is_listed(tmp_path):
+    service, _ = make_service(tmp_path)
+    service.initialize("correct")
+    first = service.create_backup()
+    second = service.create_backup()
+
+    assert first != second
+    assert set(service.list_backups()) >= {first, second}
+
+
+def test_corrupt_last_good_is_replaced_from_valid_active_vault(tmp_path):
+    service, paths = make_service(tmp_path)
+    service.initialize("correct")
+    paths.backup_dir.mkdir()
+    last_good = paths.backup_dir / "last-good.vault"
+    last_good.write_text("damaged")
+
+    service.add_entry(EntryDraft("New", "new.test", "secret"))
+
+    service.restore_backup(last_good, "correct")
+    assert service.list_entries() == ()

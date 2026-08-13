@@ -113,6 +113,7 @@ class VaultService:
         self._persist(replace(document, updated_at=self._now(), entries=entries), key)
 
     def change_master_password(self, current_password: str, new_password: str) -> None:
+        self.session.require()
         # Re-authenticate from disk rather than trusting only an unlocked UI.
         envelope = self.repository.read()
         disk_revision = self.repository.revision()
@@ -127,6 +128,10 @@ class VaultService:
     def create_backup(self) -> Path:
         self.session.require()
         return self.repository.create_backup()
+
+    def list_backups(self) -> tuple[Path, ...]:
+        self.session.require()
+        return self.repository.list_backups()
 
     def restore_backup(self, backup: Path, password: str) -> None:
         try:

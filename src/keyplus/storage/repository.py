@@ -137,6 +137,19 @@ class FileVaultRepository:
                 "KeyPlus could not create an encrypted vault backup."
             ) from exc
 
+    def list_backups(self) -> tuple[Path, ...]:
+        try:
+            if not self.paths.backup_dir.exists():
+                return ()
+            backups = [
+                path for path in self.paths.backup_dir.glob("*.vault") if path.is_file()
+            ]
+            return tuple(
+                sorted(backups, key=lambda path: path.stat().st_mtime, reverse=True)
+            )
+        except OSError as exc:
+            raise BackupError("KeyPlus could not list encrypted backups.") from exc
+
     def _write_last_good_backup(self) -> None:
         # Only preserve a structurally valid envelope.
         self.read()

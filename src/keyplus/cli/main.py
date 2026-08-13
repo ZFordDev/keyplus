@@ -34,7 +34,9 @@ COMMANDS = (
     "edit",
     "delete",
     "backup",
+    "backups",
     "restore",
+    "passwd",
     "lock",
     "exit",
     "quit",
@@ -166,8 +168,12 @@ def run_repl(service, console: Console) -> int:
                 console.print(
                     f"[green]Encrypted backup created:[/green] {service.create_backup()}"
                 )
+            elif command == "backups":
+                _list_backups(service, console)
             elif command == "restore":
                 _restore(service, console, args)
+            elif command == "passwd":
+                _change_master_password(service, console)
             elif command == "lock":
                 service.lock()
                 _unlock(service, console)
@@ -266,4 +272,25 @@ def _restore(service, console: Console, args: list[str]) -> None:
     console.print(
         "[green]Encrypted backup restored. The previous vault was preserved "
         "as last-good.vault.[/green]"
+    )
+
+
+def _list_backups(service, console: Console) -> None:
+    backups = service.list_backups()
+    if not backups:
+        console.print("[dim]No encrypted backups found.[/dim]")
+        return
+    table = Table("Backup", "Bytes", "Location")
+    for backup in backups:
+        table.add_row(backup.name, str(backup.stat().st_size), str(backup.parent))
+    console.print(table)
+
+
+def _change_master_password(service, console: Console) -> None:
+    current = getpass("Current master password: ")
+    replacement = _new_password()
+    service.change_master_password(current, replacement)
+    console.print(
+        "[green]Master password changed. Existing backups still use the "
+        "password that protected them when created.[/green]"
     )

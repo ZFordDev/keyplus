@@ -11,7 +11,9 @@ from PySide6.QtWidgets import (
 )
 
 
-def build_dashboard(service, on_view_entry, on_add_entry, on_backup, on_logout):
+def build_dashboard(
+    service, on_view_entry, on_add_entry, on_backup, on_change_password, on_logout
+):
     """
     Dashboard showing all vault entries.
     Calls on_view_entry(entry_id) when an entry is clicked.
@@ -37,12 +39,6 @@ def build_dashboard(service, on_view_entry, on_add_entry, on_backup, on_logout):
     header_layout.addWidget(title)
 
     header_layout.addStretch()
-
-    backup_btn = QPushButton("Backup")
-    backup_btn.setFixedHeight(36)
-    backup_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-    backup_btn.clicked.connect(on_backup)
-    header_layout.addWidget(backup_btn)
 
     # Manual Logout Button (Destructive/Outline Style)
     logout_btn = QPushButton("Logout")
@@ -87,6 +83,20 @@ def build_dashboard(service, on_view_entry, on_add_entry, on_backup, on_logout):
     header_layout.addWidget(add_btn)
 
     layout.addWidget(header_widget)
+
+    vault_actions = QHBoxLayout()
+    backup_btn = QPushButton("Create Backup")
+    backup_btn.setFixedHeight(36)
+    backup_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+    backup_btn.clicked.connect(on_backup)
+    vault_actions.addWidget(backup_btn)
+
+    password_btn = QPushButton("Change Password")
+    password_btn.setFixedHeight(36)
+    password_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+    password_btn.clicked.connect(on_change_password)
+    vault_actions.addWidget(password_btn)
+    layout.addLayout(vault_actions)
 
     # --- ENTRIES LIST SECTION ---
     entries = service.list_entries()

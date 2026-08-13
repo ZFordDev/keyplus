@@ -42,10 +42,9 @@ def build_setup_screen(service, on_success):
     warning_layout.setContentsMargins(14, 14, 14, 14)
 
     warning = QLabel(
-        "⚠️ WARNING\n\n"
-        "Creating a new master password will completely overwrite and ERASE access "
-        "to all existing vault data.\n\n"
-        "Your old entries will be permanently unrecoverable."
+        "⚠️ RECOVERY WARNING\n\n"
+        "KeyPlus cannot recover a forgotten master password. Keep tested encrypted "
+        "backups and an independent recovery plan for the password."
     )
     warning.setStyleSheet(
         "color: #f87171; font-size: 13px; font-weight: 500; line-height: 1.4;"

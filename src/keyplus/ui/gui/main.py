@@ -5,6 +5,7 @@ from keyplus.application.errors import KeyPlusError
 from keyplus.bootstrap import build_service
 
 from .add_entry import AddEntryDialog
+from .change_password import ChangePasswordDialog
 from .dash import build_dashboard
 from .login import build_login_screen
 from .setup import build_setup_screen
@@ -120,6 +121,7 @@ class KeyPlusFrame(QWidget):
             on_view_entry=self.show_view_entry,
             on_add_entry=self.show_add_entry_modal,
             on_backup=self.create_backup,
+            on_change_password=self.change_master_password,
             on_logout=self.logout,
         )
         self.body.addWidget(dashboard_widget)
@@ -190,6 +192,16 @@ class KeyPlusFrame(QWidget):
             "Backup created",
             f"An encrypted backup was created at:\n{destination}",
         )
+
+    def change_master_password(self):
+        dialog = ChangePasswordDialog(self.service, self)
+        if dialog.exec():
+            QMessageBox.information(
+                self,
+                "Master password changed",
+                "The active vault now uses the new master password. Existing "
+                "backups still use their original passwords.",
+            )
 
     def _check_session(self):
         if self._route in {"dashboard", "entry"} and not self.service.unlocked:

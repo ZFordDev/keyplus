@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keyplus"
-version = "0.3.0"
+version = "0.3.1"
 description = "Local-first password vault with CLI and optional GUI"
 readme = "README.md"
 license = { text = "MIT" }

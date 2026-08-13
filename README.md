@@ -1,6 +1,19 @@
+<div align="center">
+
 # KeyPlus
 
-KeyPlus is a local-first encrypted password vault with an interactive terminal interface and a PySide6 desktop interface.
+### local-first encrypted password vault with terminal and desktop interface.
+
+[Documentation](https://docs.zford.dev/zforddev/keyplus/) · [Downloads](https://github.com/ZFordDev/keyplus/releases) · [Report a bug](https://github.com/ZFordDev/keyplus/issues/new/choose)
+
+
+[![Status](https://img.shields.io/badge/status-active-4CAF50?style=flat-square)](https://github.com/ZFordDev/keyplus)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-0078D4?style=flat-square)](#installation)
+[![GitHub downloads](https://img.shields.io/github/downloads/ZFordDev/keyplus/total?style=flat-square)](https://github.com/ZFordDev/keyplus/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+
+
+</div>
 
 > **Development status:** KeyPlus 0.3 is an architecture and data-safety release under active development. It has not received an independent security audit. Keep an independent backup of important credentials and evaluate the software for your own risk requirements.
 
@@ -34,9 +47,9 @@ keyplus --gui
 
 Desktop-oriented packages may also install the equivalent `keyplus-gui` launcher.
 
-The CLI supports `list`, `view`, `add`, `edit`, `delete`, `backup`, `restore <path>`, `lock`, and `help`. Credential passwords are collected with hidden input rather than inline command arguments.
+The CLI supports `list`, `view`, `add`, `edit`, `delete`, `backup`, `backups`, `restore <path>`, `passwd`, `lock`, and `help`. Credential and master passwords are collected with hidden input rather than inline command arguments.
 
-The GUI supports vault setup and unlock, listing, adding, viewing, editing, and deleting entries, creating encrypted backups, and restoring a validated backup from the login screen. Logout calls the same core lock operation as the CLI.
+The GUI supports vault setup and unlock, listing, adding, viewing, editing, and deleting entries, changing the master password, creating encrypted backups, and restoring a validated backup from the login screen. Logout calls the same core lock operation as the CLI.
 
 ## Data locations
 

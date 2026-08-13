@@ -8,6 +8,7 @@ from rich.console import Console
 
 from keyplus.application.models import EntryDraft
 from keyplus.cli import main as cli_main
+from keyplus.ui.gui.change_password import ChangePasswordDialog
 from keyplus.ui.gui.main import KeyPlusFrame
 from tests.test_core import make_service
 
@@ -42,6 +43,17 @@ def test_cli_resolves_unambiguous_id_prefix(tmp_path):
     assert cli_main._resolve(service, entry.id[:8]) == entry
 
 
+def test_cli_lists_encrypted_backups(tmp_path):
+    service, _ = make_service(tmp_path)
+    service.initialize("correct")
+    backup = service.create_backup()
+    output = StringIO()
+
+    cli_main._list_backups(service, Console(file=output, force_terminal=False))
+
+    assert backup.name in output.getvalue()
+
+
 def test_gui_logout_invalidates_shared_service(tmp_path):
     app = QApplication.instance() or QApplication([])
     service, _ = make_service(tmp_path)
@@ -50,4 +62,38 @@ def test_gui_logout_invalidates_shared_service(tmp_path):
     frame.logout()
     assert not service.unlocked
     frame.close()
+    app.processEvents()
+
+
+def test_cli_password_change_uses_shared_service(tmp_path, monkeypatch):
+    service, _ = make_service(tmp_path)
+    service.initialize("old")
+    answers = iter(["old", "new", "new"])
+    monkeypatch.setattr(cli_main, "getpass", lambda _prompt: next(answers))
+    output = StringIO()
+
+    cli_main._change_master_password(
+        service, Console(file=output, force_terminal=False)
+    )
+
+    service.lock()
+    service.unlock("new")
+    assert "Master password changed" in output.getvalue()
+
+
+def test_gui_password_change_dialog_uses_shared_service(tmp_path):
+    app = QApplication.instance() or QApplication([])
+    service, _ = make_service(tmp_path)
+    service.initialize("old")
+    dialog = ChangePasswordDialog(service)
+    dialog.current_password.setText("old")
+    dialog.new_password.setText("new")
+    dialog.confirm_password.setText("new")
+
+    dialog._submit()
+
+    assert dialog.result() == dialog.DialogCode.Accepted
+    service.lock()
+    service.unlock("new")
+    dialog.close()
     app.processEvents()
