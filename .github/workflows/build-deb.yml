@@ -61,7 +61,7 @@ jobs:
 
       - name: Compile application with PyInstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name keyplus --paths=src src/keyplus/__main__.py
+          pyinstaller --noconfirm --onedir --console --name keyplus --paths=src --collect-all PySide6 src/keyplus/__main__.py
 
       - name: Structure Debian Directory Architecture
         run: |

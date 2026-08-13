@@ -1,0 +1,40 @@
+name: keyplus
+base: core24
+version: "0.3.0"
+platforms:
+  amd64:
+summary: Local-first encrypted password vault
+description: |
+  KeyPlus is a local-first encrypted password vault with an interactive
+  terminal interface and an optional PySide6 desktop interface. Vault data is
+  stored in the revision-independent Snap user data directory.
+grade: stable
+confinement: strict
+license: MIT
+website: https://github.com/ZFordDev/keyplus
+source-code: https://github.com/ZFordDev/keyplus
+issues: https://github.com/ZFordDev/keyplus/issues
+
+apps:
+  keyplus:
+    command: bin/keyplus
+    extensions: [gnome]
+    plugs:
+      - home
+  keyplus-gui:
+    command: bin/keyplus-gui
+    extensions: [gnome]
+    plugs:
+      - home
+
+parts:
+  keyplus:
+    plugin: python
+    source: .
+    python-packages:
+      - .
+    build-packages:
+      - build-essential
+      - python3-dev
+    stage-packages:
+      - libgl1

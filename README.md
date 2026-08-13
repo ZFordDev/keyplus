@@ -1,129 +1,115 @@
-[![Docs](https://img.shields.io/badge/DocsHub-docs.zford.dev-4F46E5?style=flat-square)](https://docs.zford.dev/zforddev/keyplus/)
-![Status](https://img.shields.io/badge/Status-ACTIVE-4CAF50?style=flat-square)
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
-![Windows](https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white)  
-![Downloads](https://img.shields.io/github/downloads/ZFordDev/keyplus/total?style=flat-square)
-![Python](https://img.shields.io/badge/Built_with-Python-blue?style=flat-square)
-[![keyplus](https://snapcraft.io/keyplus/badge.svg)](https://snapcraft.io/keyplus)
+# KeyPlus
 
+KeyPlus is a local-first encrypted password vault with an interactive terminal interface and a PySide6 desktop interface.
 
-# KeyPlus  
-*A completely offline, local‑first password manager.*
+> **Development status:** KeyPlus 0.3 is an architecture and data-safety release under active development. It has not received an independent security audit. Keep an independent backup of important credentials and evaluate the software for your own risk requirements.
 
-> **Version:** v0.2.9  
-> **Status:** Beta • Actively Developed • Accepting Contributions
+## What changed in 0.3
 
-## Why KeyPlus Exists
+- CLI and GUI now use one shared `VaultService`.
+- The default vault has one deterministic per-user location rather than following the shell working directory.
+- Authentication results from successfully decrypting one self-contained, versioned vault file.
+- Argon2id derives a 256-bit key and AES-GCM provides authenticated encryption.
+- Vault writes use a same-directory temporary file and atomic replacement.
+- POSIX data directories and vault files are explicitly restricted to `0700` and `0600` respectively.
+- Mutations use an advisory lock and reject stale concurrent writers.
+- Explicit locking invalidates the shared session as far as practical in Python.
+- KeyPlus 0.2 `auth.db` plus `vault.json` pairs can be migrated without modifying the originals.
 
-My password storage leaked.  
-My offline manager went paid.  
-I needed something I could trust.
+These mechanisms do not protect a vault from malware, keyloggers, screen capture, a compromised user account, weak master passwords, or every implementation defect.
 
-So I built KeyPlus, a local‑only password vault that stays on your machine, stays simple, and stays yours.
+## Interfaces
 
-## Features
-
-### **Current**
-- **Argon2 master password verification**  
-  - Memory‑hard hashing so brute‑forcing is a bad time.
-- **Full vault encryption**  
-  - AES‑backed symmetric encryption with authenticated access.
-- **SQLite storage**  
-  - Structured, isolated, and stored under ~/.local/share/ZFordDev/keyplus/.
-- **Interactive CLI**  
-  - Quick add, quick read, quick edit.
-- **Session timeout**  
-  - Leave the CLI idle and it locks itself.
-- **Password history**  
-  - Keeps old versions when you rotate credentials.
-
-### **In Development**
-- CLI search + filtering
-- Import/export (CSV, JSON)
-- Snapcraft packaging for Linux
-- Windows installer (custom)
-- macOS support (maby)
-
-> [!TIP]
-> **Where is the updater?!**  
-> If you know my work, you know I always ship an updater so you don’t have to keep checking GitHub for new versions.  
-> 
-> KeyPlus will get one I’m just being careful with it.  
-> 
-> The logic is easy.  
-> The safe part is hard.  
->
->Password managers are sensitive tools, and I’m not going to rush an auto‑update system that touches encrypted vaults. When I’m confident the updater can be done securely (and without breaking your vault), it’ll land.
-
-## Quick Start (From Source)
+Start the interactive CLI:
 
 ```bash
-git clone https://github.com/ZFordDev/keyplus.git
-cd keyplus
-
-python3 -m venv .venv
-source .venv/bin/activate
-
-pip install -e .
 keyplus
 ```
 
-## Project Structure
+Start the desktop interface:
 
-```text
-keyplus/
-├── src/keyplus/
-│   ├── cli/        # CLI + REPL
-│   ├── ui/         # GUI layer (PySide6)
-│   └── logic/      # crypto + database
-│       └── storage/
-├── pyproject.toml
-├── README.md
-└── LICENSE
+```bash
+keyplus --gui
 ```
 
-*Note: Runtime data stays outside the repo and lives in your user namespace.*
+Desktop-oriented packages may also install the equivalent `keyplus-gui` launcher.
 
-## Packaging roadmap
+The CLI supports `list`, `view`, `add`, `edit`, `delete`, `backup`, `restore <path>`, `lock`, and `help`. Credential passwords are collected with hidden input rather than inline command arguments.
 
-* Packaging
-  * linux
-    * deb ✔️
-    * snap ✔️
-  * Windows
-    * .exe ✔️
-      * Custom installer⏳
-  * mac 🛠️
-  * android? 🤔
- 
-  [![Get it from the Snap Store](https://snapcraft.io/en/dark/install.svg)](https://snapcraft.io/keyplus)
+The GUI supports vault setup and unlock, listing, adding, viewing, editing, and deleting entries, creating encrypted backups, and restoring a validated backup from the login screen. Logout calls the same core lock operation as the CLI.
 
-## Expectations
+## Data locations
 
-KeyPlus is actively developed, but it’s still growing.
-It works, it’s stable, and it’s offline but new features land regularly.
+The default vault filename is `keyplus.vault`.
 
-If you want something simple and local‑first, you’ll probably like it.
-If you want cloud sync, autofill, or browser extensions… this isn’t that.
+- Linux: `$XDG_DATA_HOME/ZFordDev/KeyPlus/`, falling back to `~/.local/share/ZFordDev/KeyPlus/`
+- Snap: `$SNAP_USER_COMMON/KeyPlus/`
+- Windows: `%LOCALAPPDATA%\ZFordDev\KeyPlus\`
 
-## Contributing
-Issues, ideas, PRs — all welcome.
+Encrypted backups are stored in the `backups` directory beneath the same data directory. Application packages use the same path resolver and vault format.
 
-## License
+## Migrating a 0.2 vault
 
-Released under the MIT License.
+KeyPlus 0.2 stored `auth.db` and `vault.json` in the directory from which it was launched.
 
-See `LICENSE` for details.
+The CLI checks its current directory for that pair on first 0.3 launch. An explicit directory can be supplied with:
 
-## About ZFordDev
+```bash
+keyplus --migrate /path/to/legacy/folder
+```
 
-KeyPlus is part of the ZFordDev ecosystem — a collection of practical, long‑term tools built with clarity, simplicity, and maintainability in mind.
+The GUI setup screen provides **Migrate a KeyPlus 0.2 Vault**. Successful migration creates and validates the 0.3 vault but leaves both original files unchanged.
 
+Do not delete the legacy files until you have independently confirmed the migrated vault and your backup strategy.
 
-<table align="right">
-  <tr>
-    <td>
-      <img src="https://raw.githubusercontent.com/ZFordDev/ZFordDev/main/assets/standards-approved.svg" width="80" alt="ZFordDev Standards Approved Badge">
-    </td>
-  </tr>
-</table>
+## Install from source
+
+KeyPlus requires Python 3.10 or later.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+python -m pytest
+keyplus
+```
+
+Windows activation uses `.venv\Scripts\activate`.
+
+## Snap packaging
+
+The committed `snap/snapcraft.yaml` is the authoritative Snapcraft project.
+Canonical's Snap Store build service is linked to the repository and builds
+from `main`; GitHub Actions validates the same manifest but does not publish to
+the Store or hold Store credentials.
+
+## Project structure
+
+```text
+src/keyplus/
+├── application/   # models, validation, errors, and VaultService
+├── security/      # Argon2id, AES-GCM, and unlocked session state
+├── storage/       # paths, format, atomic repository, locking, migration
+├── cli/           # terminal presentation and REPL routing
+├── ui/gui/        # PySide6 presentation
+├── bootstrap.py   # shared composition root
+└── __main__.py    # installed entry point
+```
+
+## Deliberate non-features
+
+KeyPlus 0.3 does not currently provide cloud synchronization, browser integration, autofill, password generation, plaintext import/export, password history, or an application-managed updater.
+
+## Development checks
+
+```bash
+python -m pytest -q
+python -m ruff check src tests
+python -m ruff format --check src tests
+```
+
+## Security reporting
+
+Please use a private GitHub security advisory for suspected vulnerabilities. Do not include real vault files, master passwords, or credentials in reports. See `SECURITY.md`.
+
+KeyPlus is licensed under the MIT License.

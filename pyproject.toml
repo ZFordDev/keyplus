@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keyplus"
-version = "0.2.9"
+version = "0.3.0"
 description = "Local-first password vault with CLI and optional GUI"
 readme = "README.md"
 license = { text = "MIT" }
@@ -23,7 +23,8 @@ keywords = ["password", "offline", "CLI", "UI", "vault", "security"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3",
-  "Operating System :: OS Independent",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
   "Topic :: Security :: Cryptography"
 ]
 
@@ -52,10 +53,14 @@ Changelog = "https://github.com/ZFordDev/keyplus/blob/main/CHANGELOG.md"
 
 [project.scripts]
 keyplus = "keyplus.__main__:main"
+keyplus-gui = "keyplus.gui_main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["keyplus*", "cli*", "logic*", "ui*"]
+include = ["keyplus*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

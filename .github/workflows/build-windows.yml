@@ -48,13 +48,16 @@ jobs:
       - name: Compile Core KeyPlus App Payload
         shell: powershell
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name keyplus --paths=src --collect-all PySide6 src/keyplus/__main__.py
+          pyinstaller --noconfirm --onedir --console --name keyplus --paths=src --collect-all PySide6 src/keyplus/__main__.py
+          pyinstaller --noconfirm --onedir --windowed --name keyplus-gui --paths=src --collect-all PySide6 src/keyplus/gui_main.py
 
       - name: Stage Payload inside Windows Setup Directory
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path setup/windows/dist_payload | Out-Null
           Copy-Item -Recurse -Force dist/keyplus/* setup/windows/dist_payload/
+          New-Item -ItemType Directory -Force -Path setup/windows/dist_payload/gui | Out-Null
+          Copy-Item -Recurse -Force dist/keyplus-gui/* setup/windows/dist_payload/gui/
 
       - name: Generate checksums.json for payload
         shell: powershell

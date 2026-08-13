@@ -30,6 +30,7 @@ Cargo.lock
 # ────────────────────────────────────────────────
 # Prevent committing real developer/test vaults
 *.kp
+*.vault
 *.db
 *.db-wal
 *.db-shm
@@ -37,6 +38,7 @@ Cargo.lock
 # Target local test files specifically, NOT all JSON project configs
 data/
 vault.json
+auth.db
 auth.json
 
 # ────────────────────────────────────────────────
