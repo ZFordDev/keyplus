@@ -15,6 +15,10 @@
 
 </div>
 
+> [!WARNING]
+> **Project Status: Archived / Deprecated**
+> This project is no longer maintained or used. It has not undergone security audits and should NOT be used for managing real credentials.
+
 > **Development status:** KeyPlus 0.3 is an architecture and data-safety release under active development. It has not received an independent security audit. Keep an independent backup of important credentials and evaluate the software for your own risk requirements.
 
 ## What changed in 0.3
